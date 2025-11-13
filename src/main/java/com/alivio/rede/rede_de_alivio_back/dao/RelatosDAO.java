@@ -13,14 +13,13 @@ import java.util.List;
 public class RelatosDAO {
     // Criar Relatos
     public void inserir(Relatos relato) throws DAOException {
-        String sql = "INSERT INTO RELATOS (ID, ID_AUTOR, TITULO, TEXTO, LIKES) VALUES (?,?,?,?,0)";
+        String sql = "INSERT INTO RELATOS (ID_AUTOR, TITULO, TEXTO, LIKES) VALUES (?,?,?,0)";
 
         try (Connection conn = ConnectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, relato.getId());
-            stmt.setInt(2, relato.getIdAutor());
-            stmt.setString(3, relato.getTitulo());
-            stmt.setString(4, relato.getTexto());
+            stmt.setInt(1, relato.getIdAutor());
+            stmt.setString(2, relato.getTitulo());
+            stmt.setString(3, relato.getTexto());
 
             stmt.executeUpdate();
         }

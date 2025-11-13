@@ -4,6 +4,7 @@ import com.alivio.rede.rede_de_alivio_back.factory.ConnectionFactory;
 import com.alivio.rede.rede_de_alivio_back.exception.DAOException;
 import com.alivio.rede.rede_de_alivio_back.model.Comentarios;
 import com.alivio.rede.rede_de_alivio_back.dto.ComentarioComAutorDTO;
+import com.alivio.rede.rede_de_alivio_back.model.Relatos;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,14 +13,13 @@ import java.util.List;
 public class ComentarioDAO {
     // Criar Comentário
     public void inserir(Comentarios comentario) throws DAOException {
-        String sql = "INSERT INTO COMENTARIOS (ID, ID_AUTOR, ID_RELATO, COMENTARIO, LIKES) VALUES (?,?,?,?,0)";
+        String sql = "INSERT INTO COMENTARIOS (ID_AUTOR, ID_RELATO, COMENTARIO, LIKES) VALUES (?,?,?,0)";
 
         try (Connection conn = ConnectionFactory.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, comentario.getId());
-            stmt.setInt(2, comentario.getIdAutor());
-            stmt.setInt(3, comentario.getIdRelato());
-            stmt.setString(4, comentario.getComentario());
+            stmt.setInt(1, comentario.getIdAutor());
+            stmt.setInt(2, comentario.getIdRelato());
+            stmt.setString(3, comentario.getComentario());
 
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -75,5 +75,32 @@ public class ComentarioDAO {
         }
 
         return comentarios;
+    }
+
+    // Recuperar comentário por ID
+    public Comentarios selectComentarioById(int id) throws DAOException {
+        String sql = "SELECT * FROM COMENTARIOS WHERE ID = ?";
+        Comentarios comentario = null;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    comentario = new Comentarios();
+                    comentario.setId(rs.getInt("ID"));
+                    comentario.setIdAutor(rs.getInt("ID_AUTOR"));
+                    comentario.setIdRelato(rs.getInt("ID_RELATO"));
+                    comentario.setComentario(rs.getString("COMENTARIO"));
+                    comentario.setLikes(rs.getInt("LIKES"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException("Erro ao buscar comentário", e);
+        }
+
+        return comentario;
     }
 }
