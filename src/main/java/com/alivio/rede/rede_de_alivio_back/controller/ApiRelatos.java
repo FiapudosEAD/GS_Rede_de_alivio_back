@@ -1,16 +1,24 @@
 package com.alivio.rede.rede_de_alivio_back.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alivio.rede.rede_de_alivio_back.dao.RelatosDAO;
 import com.alivio.rede.rede_de_alivio_back.dto.RelatoComComentariosDTO;
 import com.alivio.rede.rede_de_alivio_back.exception.DAOException;
 import com.alivio.rede.rede_de_alivio_back.model.Relatos;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/relatos")
@@ -18,9 +26,6 @@ import java.util.Map;
 public class ApiRelatos {
     private final RelatosDAO relatosDAO = new RelatosDAO();
 
-    // Criar novo relato
-    // Endpoint: POST /api/relatos
-    // Body: {"idAutor": 1, "titulo": "Título do Relato", "texto": "Texto do Relato"}
     @PostMapping
     public ResponseEntity<Map<String, Object>> criarRelato(@RequestBody Relatos relato) {
         Map<String, Object> response = new HashMap<>();
@@ -29,7 +34,7 @@ public class ApiRelatos {
             response.put("success", true);
             response.put("message", "Relato criado com sucesso.");
             response.put("data", relato);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (DAOException e) {
             response.put("success", false);
             response.put("message", "Erro ao criar relato" + e.getMessage());
@@ -37,9 +42,6 @@ public class ApiRelatos {
         }
     }
 
-    // Atualizar relato existente
-    // Endpoint: PUT /api/relatos/{id}
-    // Body: { "id": 1, "titulo": "Novo Título", "texto": "Novo texto" }
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> atualizarRelato(
             @PathVariable Integer id,
@@ -59,13 +61,10 @@ public class ApiRelatos {
         }
     }
 
-    // Curtir relato
-    // Endpoint: PUT /api/relatos/{id}/curtir
     @PutMapping("/{id}/curtir")
     public ResponseEntity<Map<String, Object>> curtirRelato(@PathVariable Integer id) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Primeiro busca o relato para pegar os likes atuais
             RelatoComComentariosDTO relatoDTO = relatosDAO.selectRelatosById(id);
 
             if (relatoDTO == null) {
@@ -74,12 +73,10 @@ public class ApiRelatos {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // Cria objeto Relatos com os dados atuais
             Relatos relato = new Relatos();
             relato.setId(relatoDTO.getId());
             relato.setLikes(relatoDTO.getLikes());
 
-            // Incrementa o like
             relatosDAO.curtir(relato);
 
             response.put("success", true);
@@ -93,8 +90,6 @@ public class ApiRelatos {
         }
     }
 
-    // Buscar todos os relatos com comentários
-    // Endpoint: GET /api/relatos
     @GetMapping
     public ResponseEntity<Map<String, Object>> listarTodosRelatos() {
         Map<String, Object> response = new HashMap<>();
@@ -112,8 +107,6 @@ public class ApiRelatos {
         }
     }
 
-    // Buscar relato por ID
-    // Endpoint: GET /api/relatos/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> buscarRelatoPorId(@PathVariable Integer id) {
         Map<String, Object> response = new HashMap<>();
