@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-public class SecurityFilterTemp implements Filter {
+public class SecurityFilter implements Filter {
 
     private final TokenService tokenService = new TokenService();
 
