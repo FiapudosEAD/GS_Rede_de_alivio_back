@@ -25,10 +25,20 @@ public class SecurityFilter implements Filter {
         
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+
+        res.setHeader("Access-Control-Allow-Origin", "*"); 
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept");
+        res.setHeader("Access-Control-Max-Age", "3600");
+
+        if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
+            res.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
         
         String path = req.getRequestURI();
 
-        if (path.startsWith("/api/auth") || req.getMethod().equals("OPTIONS")) {
+        if (path.startsWith("/api/auth")) {
             chain.doFilter(request, response);
             return;
         }
@@ -41,7 +51,6 @@ public class SecurityFilter implements Filter {
                 return;
             }
         }
-
         res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         res.getWriter().write("{\"message\": \"Acesso negado. Token invalido ou ausente.\"}");
     }
