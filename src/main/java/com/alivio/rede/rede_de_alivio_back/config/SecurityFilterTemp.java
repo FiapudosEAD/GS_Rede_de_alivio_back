@@ -1,15 +1,21 @@
 package com.alivio.rede.rede_de_alivio_back.config;
 
-import com.alivio.rede.rede_de_alivio_back.service.TokenService;
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 
+import org.springframework.stereotype.Component;
+
+import com.alivio.rede.rede_de_alivio_back.service.TokenService;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @Component
-public class SecurityFilter implements Filter {
+public class SecurityFilterTemp implements Filter {
 
     private final TokenService tokenService = new TokenService();
 
