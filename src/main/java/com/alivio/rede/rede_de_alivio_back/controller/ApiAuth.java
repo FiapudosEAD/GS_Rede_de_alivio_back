@@ -6,6 +6,7 @@ import com.alivio.rede.rede_de_alivio_back.dto.LoginRequestDTO;
 import com.alivio.rede.rede_de_alivio_back.dto.RegisterRequestDTO;
 import com.alivio.rede.rede_de_alivio_back.exception.DAOException;
 import com.alivio.rede.rede_de_alivio_back.model.Usuarios;
+import com.alivio.rede.rede_de_alivio_back.service.TokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,15 +20,12 @@ import java.util.Map;
 public class ApiAuth {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final TokenService tokenService = new TokenService();
 
-    // Registrar novo usuario
-    // Endpoint: POST /api/auth/register
-    // Body: {"nome": "Nome do Usuario", "email": "email@example.com", "senha": "senha123"}
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registrar(@RequestBody RegisterRequestDTO request) {
         Map<String, Object> response = new HashMap<>();
 
-        // Validar campos obrigatorios
         if (request.getNome() == null || request.getNome().trim().isEmpty()) {
             response.put("success", false);
             response.put("message", "Nome e obrigatorio");
@@ -54,10 +52,13 @@ public class ApiAuth {
 
             usuarioDAO.registrar(usuario);
 
+            String token = tokenService.generateToken(usuario);
+
             AuthResponseDTO authResponse = new AuthResponseDTO(
                     usuario.getId(),
                     usuario.getNome(),
-                    usuario.getEmail()
+                    usuario.getEmail(),
+                    token
             );
 
             response.put("success", true);
@@ -71,14 +72,11 @@ public class ApiAuth {
         }
     }
 
-    // Login de usuario
-    // Endpoint: POST /api/auth/login
-    // Body: {"email": "email@example.com", "senha": "senha123"}
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequestDTO request) {
         Map<String, Object> response = new HashMap<>();
 
-        // Validar campos obrigatorios
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             response.put("success", false);
             response.put("message", "Email e obrigatorio");
@@ -100,10 +98,13 @@ public class ApiAuth {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
+            String token = tokenService.generateToken(usuario);
+
             AuthResponseDTO authResponse = new AuthResponseDTO(
                     usuario.getId(),
                     usuario.getNome(),
-                    usuario.getEmail()
+                    usuario.getEmail(),
+                    token
             );
 
             response.put("success", true);
@@ -117,8 +118,6 @@ public class ApiAuth {
         }
     }
 
-    // Buscar usuario por ID
-    // Endpoint: GET /api/auth/usuario/{id}
     @GetMapping("/usuario/{id}")
     public ResponseEntity<Map<String, Object>> buscarUsuario(@PathVariable Integer id) {
         Map<String, Object> response = new HashMap<>();
@@ -135,7 +134,8 @@ public class ApiAuth {
             AuthResponseDTO authResponse = new AuthResponseDTO(
                     usuario.getId(),
                     usuario.getNome(),
-                    usuario.getEmail()
+                    usuario.getEmail(),
+                    null 
             );
 
             response.put("success", true);
